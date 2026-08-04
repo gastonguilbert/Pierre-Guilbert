@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pierre Guilbert · Œuvres</title>
+<meta name="description" content="Vitrine des œuvres de Pierre Guilbert : peintures, dessins, sculptures et photographies.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500;600&family=Archivo+Narrow:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* palette tiree des oeuvres */
+  --red:#e02a1a;
+  --vermillon:#f04e1e;
+  --gold:#f0b224;
+  --yellow:#f2e21c;
+  --cyan:#1eb6de;
+  --blue:#1f5fd0;
+  --green:#2fb84e;
+  --magenta:#d81f5e;
+  --ink:#141018;
+  --panel:#1c1620;
+  --paper:#f4efe6;
+  --muted:#8a8194;
+  --edge:clamp(18px,4vw,64px);
+  --gap:clamp(8px,1.3vw,18px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:"Archivo",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* ---------- HERO : composition geometrique ---------- */
+.hero{
+  position:relative;
+  min-height:88vh;
+  padding:var(--edge);
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  overflow:hidden;
+  border-bottom:6px solid var(--yellow);
+}
+/* formes geometriques animees en SVG (morph de chemins) */
+.hero-bg{position:absolute;inset:0;z-index:0;width:100%;height:100%;transform-origin:70% 30%;will-change:transform,opacity}
+.hero-bg path{will-change:d,transform}
+.hero-grain{position:absolute;inset:0;z-index:1;
+  background:radial-gradient(ellipse at 30% 90%,transparent 30%,rgba(20,16,24,.7) 100%);
+  mix-blend-mode:multiply}
+.hero-inner{position:relative;z-index:2;max-width:15ch}
+.hero-inner::before{content:"";position:absolute;z-index:-1;
+  left:-6vw;right:-8vw;top:-4vh;bottom:-6vh;
+  background:radial-gradient(ellipse at 30% 55%,rgba(20,16,24,.82) 40%,transparent 78%)}
+.eyebrow{
+  font-family:"Archivo Narrow",sans-serif;
+  font-weight:700;
+  letter-spacing:.32em;
+  text-transform:uppercase;
+  font-size:clamp(.68rem,1.1vw,.82rem);
+  color:var(--yellow);
+  margin-bottom:1.2rem;
+}
+.title{
+  font-family:"Archivo Black",sans-serif;
+  font-size:clamp(3.4rem,13vw,11rem);
+  line-height:.82;
+  letter-spacing:-.02em;
+  text-transform:uppercase;
+  color:var(--paper);
+}
+.title .l2{color:var(--yellow)}
+.lede{
+  margin-top:1.6rem;
+  max-width:34ch;
+  font-size:clamp(1rem,1.5vw,1.15rem);
+  line-height:1.5;
+  color:rgba(244,239,230,.82);
+}
+
+/* ---------- NAV ---------- */
+nav{
+  position:sticky;top:0;z-index:30;
+  background:var(--panel);
+  border-bottom:2px solid rgba(244,239,230,.1);
+}
+.nav-inner{
+  display:flex;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.nav-inner::-webkit-scrollbar{display:none}
+.tab{
+  appearance:none;border:none;background:none;cursor:pointer;
+  font-family:"Archivo Narrow",sans-serif;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  font-size:clamp(.82rem,1.4vw,1rem);
+  color:var(--muted);
+  padding:clamp(14px,2vw,20px) clamp(16px,2.4vw,30px);
+  white-space:nowrap;
+  position:relative;
+  transition:color .2s,background .2s;
+  border-right:1px solid rgba(244,239,230,.07);
+}
+.tab .count{font-size:.66em;vertical-align:super;margin-left:.3em;opacity:.6}
+.tab:hover{color:var(--paper)}
+.tab.active{color:var(--ink)}
+.tab.active::before{content:"";position:absolute;inset:0;z-index:-1}
+.tab[data-slug="peintures"].active{background:var(--red);color:#fff}
+.tab[data-slug="dessins"].active{background:var(--yellow);color:var(--ink)}
+.tab[data-slug="sculptures"].active{background:var(--cyan);color:var(--ink)}
+.tab[data-slug="photographies"].active{background:var(--green);color:var(--ink)}
+.tab[data-slug="autres"].active{background:var(--magenta);color:#fff}
+
+/* ---------- GRILLE ---------- */
+main{padding:clamp(22px,4vw,46px) var(--edge) 12vh;background:var(--ink)}
+.section-head{
+  display:flex;align-items:baseline;gap:1rem;
+  margin-bottom:clamp(20px,3vw,34px);
+  flex-wrap:wrap;
+}
+.section-head h2{
+  font-family:"Archivo Black",sans-serif;
+  font-size:clamp(1.6rem,4vw,3rem);
+  text-transform:uppercase;
+  letter-spacing:-.01em;
+  line-height:1;
+}
+.section-head .note{
+  font-family:"Archivo Narrow",sans-serif;
+  color:var(--muted);
+  font-size:.95rem;
+  letter-spacing:.02em;
+}
+.grid{columns:5 250px;column-gap:var(--gap)}
+@media(max-width:640px){.grid{columns:2 150px}}
+.cell{
+  break-inside:avoid;
+  margin-bottom:var(--gap);
+  cursor:zoom-in;
+  position:relative;
+  background:var(--panel);
+  overflow:hidden;
+  opacity:0;transform:translateY(14px);
+  transition:opacity .55s ease,transform .55s ease;
+}
+.cell.in{opacity:1;transform:none}
+.cell img{display:block;width:100%;height:auto;
+  transition:transform .55s cubic-bezier(.2,0,.1,1),filter .35s}
+.cell::after{content:"";position:absolute;inset:0;
+  box-shadow:inset 0 0 0 0 var(--yellow);transition:box-shadow .2s;pointer-events:none}
+.cell:hover img{transform:scale(1.04)}
+.cell:hover::after{box-shadow:inset 0 0 0 4px var(--yellow)}
+.cell .meta{
+  position:absolute;left:0;bottom:0;
+  background:var(--yellow);color:var(--ink);
+  font-family:"Archivo Narrow",sans-serif;font-weight:700;
+  font-size:.8rem;padding:3px 10px;
+  transform:translateY(100%);transition:transform .25s ease;
+  font-variant-numeric:tabular-nums;
+}
+.cell:hover .meta{transform:none}
+
+/* ---------- LIGHTBOX ---------- */
+.lb{position:fixed;inset:0;z-index:100;background:rgba(20,16,24,.97);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
+.lb.open{opacity:1;visibility:visible}
+.lb-stage{max-width:90vw;max-height:80vh;display:flex;align-items:center;justify-content:center}
+.lb-stage img{max-width:90vw;max-height:80vh;width:auto;height:auto;object-fit:contain;
+  box-shadow:0 30px 80px rgba(0,0,0,.6);opacity:0;transition:opacity .3s}
+.lb-stage img.ready{opacity:1}
+.lb-caption{position:fixed;bottom:clamp(16px,4vh,38px);left:0;right:0;text-align:center;
+  font-family:"Archivo Narrow",sans-serif;font-weight:600;letter-spacing:.04em;
+  color:var(--paper);font-variant-numeric:tabular-nums}
+.lb-caption .idx{color:var(--muted);margin-left:.7em}
+.lb-btn{position:fixed;top:0;bottom:0;width:clamp(60px,12vw,150px);border:none;background:none;
+  cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center;
+  transition:color .2s;z-index:101}
+.lb-btn:hover{color:var(--yellow)}
+.lb-btn svg{width:28px;height:28px}
+.lb-prev{left:0;justify-content:flex-start;padding-left:clamp(14px,3vw,38px)}
+.lb-next{right:0;justify-content:flex-end;padding-right:clamp(14px,3vw,38px)}
+.lb-close{position:fixed;top:clamp(12px,3vh,26px);right:clamp(14px,3vw,30px);
+  width:46px;height:46px;border:none;background:var(--red);cursor:pointer;color:#fff;z-index:101;
+  display:flex;align-items:center;justify-content:center;transition:background .2s}
+.lb-close:hover{background:var(--vermillon)}
+.lb-close svg{width:22px;height:22px}
+@media(max-width:640px){.lb-btn{width:52px}.lb-stage,.lb-stage img{max-height:72vh}}
+
+/* ---------- FOOTER ---------- */
+footer{background:var(--panel);border-top:6px solid var(--red);
+  padding:clamp(28px,5vw,54px) var(--edge);
+  display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:space-between;align-items:center}
+footer .fm{font-family:"Archivo Black",sans-serif;text-transform:uppercase;
+  font-size:clamp(1rem,2vw,1.3rem);letter-spacing:-.01em}
+footer .fs{font-family:"Archivo Narrow",sans-serif;color:var(--muted);font-size:.85rem;letter-spacing:.03em}
+
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.cell{opacity:1;transform:none}}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <svg id="heroSvg" class="hero-bg" viewBox="0 0 1000 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="gRed" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#e02a1a"/><stop offset=".5" stop-color="#f04e1e"/><stop offset="1" stop-color="#d81f5e"/>
+      </linearGradient>
+      <linearGradient id="gYellow" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f2e21c"/><stop offset="1" stop-color="#f0b224"/>
+      </linearGradient>
+      <linearGradient id="gCyan" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#1eb6de"/><stop offset="1" stop-color="#1f5fd0"/>
+      </linearGradient>
+      <linearGradient id="gGreen" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#2fb84e"/><stop offset="1" stop-color="#aad820"/>
+      </linearGradient>
+      <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#f0b224"/><stop offset="1" stop-color="#2fb84e"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Grande forme rouge : blob rond -> goutte -> cœur -> ovale -> blob, morph continu -->
+    <path fill="url(#gRed)" d="M760,120 C860,120 940,200 940,300 C940,400 860,480 760,480 C660,480 580,400 580,300 C580,200 660,120 760,120 Z">
+      <animate attributeName="d" dur="24s" repeatCount="indefinite" calcMode="spline"
+        keyTimes="0;0.2;0.4;0.6;0.8;1"
+        keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+        values="
+          M760,120 C860,120 940,200 940,300 C940,400 860,480 760,480 C660,480 580,400 580,300 C580,200 660,120 760,120 Z;
+          M760,110 C870,130 920,210 910,300 C900,400 830,450 760,495 C690,450 620,400 610,300 C600,210 650,130 760,110 Z;
+          M760,130 C840,140 910,190 905,290 C900,390 810,440 760,500 C710,440 620,390 615,290 C610,190 680,140 760,130 Z;
+          M760,120 C880,120 950,230 940,310 C930,400 850,450 760,470 C670,450 590,400 580,310 C570,230 640,120 760,120 Z;
+          M760,115 C860,125 925,205 930,300 C935,395 855,470 760,485 C665,470 585,395 590,300 C595,205 660,125 760,115 Z;
+          M760,120 C860,120 940,200 940,300 C940,400 860,480 760,480 C660,480 580,400 580,300 C580,200 660,120 760,120 Z"/>
+    </path>
+
+    <!-- Triangle jaune -> cercle -> carre arrondi : tous en 4 courbes, morph fluide -->
+    <path fill="url(#gYellow)" transform="translate(560,90)" d="M120,4 C120,4 240,220 240,220 C240,220 120,220 120,220 C120,220 0,220 0,220 C0,220 120,4 120,4 Z">
+      <animate attributeName="d" dur="26s" repeatCount="indefinite" calcMode="spline"
+        keyTimes="0;0.25;0.5;0.75;1"
+        keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+        values="
+          M120,4 C120,4 240,220 240,220 C240,220 120,220 120,220 C120,220 0,220 0,220 C0,220 120,4 120,4 Z;
+          M120,0 C186,0 240,54 240,120 C240,186 186,240 120,240 C54,240 0,186 0,120 C0,54 54,0 120,0 Z;
+          M30,30 C90,10 150,10 210,30 C230,90 230,150 210,210 C150,230 90,230 30,210 C10,150 10,90 30,30 Z;
+          M120,0 C186,0 240,54 240,120 C240,186 186,240 120,240 C54,240 0,186 0,120 C0,54 54,0 120,0 Z;
+          M120,4 C120,4 240,220 240,220 C240,220 120,220 120,220 C120,220 0,220 0,220 C0,220 120,4 120,4 Z"/>
+    </path>
+
+    <!-- Forme cyan (bas) : arche -> cercle -> vague, 4 courbes constantes -->
+    <path fill="url(#gCyan)" d="M600,760 C600,660 600,560 600,560 C700,540 820,540 920,560 C920,560 920,660 920,760 C820,760 700,760 600,760 Z">
+      <animate attributeName="d" dur="22s" repeatCount="indefinite" calcMode="spline"
+        keyTimes="0;0.33;0.66;1"
+        keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+        values="
+          M600,760 C600,660 600,560 600,560 C700,540 820,540 920,560 C920,560 920,660 920,760 C820,760 700,760 600,760 Z;
+          M600,760 C600,650 665,540 760,540 C855,540 920,650 920,760 C920,760 860,720 760,720 C660,720 600,760 600,760 Z;
+          M600,760 C620,690 600,600 640,560 C720,530 800,590 920,560 C920,640 900,720 860,760 C760,730 680,790 600,760 Z;
+          M600,760 C600,660 600,560 600,560 C700,540 820,540 920,560 C920,560 920,660 920,760 C820,760 700,760 600,760 Z"/>
+    </path>
+
+    <!-- Cercle magenta -> triangle -> cercle : 3 courbes constantes, morph doux -->
+    <path fill="#d81f5e" d="M492,368 C532,368 564,400 564,440 C564,480 532,512 492,512 C452,512 420,480 420,440 C420,400 452,368 492,368 Z">
+      <animate attributeName="d" dur="19s" repeatCount="indefinite" calcMode="spline"
+        keyTimes="0;0.33;0.66;1"
+        keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+        values="
+          M492,368 C532,368 564,400 564,440 C564,480 532,512 492,512 C452,512 420,480 420,440 C420,400 452,368 492,368 Z;
+          M492,362 C528,428 546,468 570,510 C540,510 510,510 492,510 C474,510 444,510 414,510 C438,468 456,428 492,362 Z;
+          M492,372 C520,400 548,432 552,460 C540,485 516,505 492,505 C468,505 444,485 432,460 C436,432 464,400 492,372 Z;
+          M492,368 C532,368 564,400 564,440 C564,480 532,512 492,512 C452,512 420,480 420,440 C420,400 452,368 492,368 Z"/>
+      <animateTransform attributeName="transform" type="translate" dur="28s" repeatCount="indefinite"
+        calcMode="spline" keyTimes="0;0.5;1" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"
+        values="0 0; 44 -34; 0 0"/>
+    </path>
+
+    <!-- Bande verte oblique qui ondule doucement -->
+    <path fill="url(#gGreen)" d="M880,80 C920,100 960,120 960,120 C920,220 860,320 820,420 C780,400 760,390 740,380 C780,280 840,180 880,80 Z">
+      <animate attributeName="d" dur="23s" repeatCount="indefinite" calcMode="spline"
+        keyTimes="0;0.33;0.66;1"
+        keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+        values="
+          M880,80 C920,100 960,120 960,120 C920,220 860,320 820,420 C780,400 760,390 740,380 C780,280 840,180 880,80 Z;
+          M900,60 C940,90 980,140 980,140 C900,240 820,340 780,400 C750,370 730,360 720,340 C780,240 860,140 900,60 Z;
+          M870,90 C915,105 955,110 955,110 C930,215 850,325 830,430 C785,405 765,400 745,390 C775,285 835,185 870,90 Z;
+          M880,80 C920,100 960,120 960,120 C920,220 860,320 820,420 C780,400 760,390 740,380 C780,280 840,180 880,80 Z"/>
+    </path>
+
+    <!-- Forme doree qui pulse : quart de cercle -> feuille, 2 courbes -->
+    <path fill="url(#gGold)" d="M480,300 C480,240 528,192 588,192 C588,228 588,264 588,300 C552,300 516,300 480,300 Z">
+      <animate attributeName="d" dur="20s" repeatCount="indefinite" calcMode="spline"
+        keyTimes="0;0.33;0.66;1"
+        keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+        values="
+          M480,300 C480,240 528,192 588,192 C588,228 588,264 588,300 C552,300 516,300 480,300 Z;
+          M480,300 C490,228 528,180 588,192 C566,232 566,262 588,300 C552,306 516,306 480,300 Z;
+          M480,300 C475,235 525,196 588,192 C580,230 580,264 588,300 C552,298 516,302 480,300 Z;
+          M480,300 C480,240 528,192 588,192 C588,228 588,264 588,300 C552,300 516,300 480,300 Z"/>
+      <animateTransform attributeName="transform" type="rotate" dur="46s" repeatCount="indefinite"
+        from="0 534 246" to="360 534 246"/>
+    </path>
+  </svg>
+  <div class="hero-grain" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <p class="eyebrow">Peintures · Dessins · Sculptures · Photographies</p>
+    <h1 class="title"><span class="l1">Pierre</span><br><span class="l2">Guilbert</span></h1>
+  </div>
+</section>
+
+<nav><div class="nav-inner" id="tabs"></div></nav>
+
+<main>
+  <div class="section-head">
+    <h2 id="secTitle"></h2>
+    <span class="note" id="secNote"></span>
+  </div>
+  <div class="grid" id="grid"></div>
+</main>
+
+<footer>
+  <span class="fm">Pierre Guilbert</span>
+  <span class="fs">© <span id="year"></span> · Vitrine réalisée par la famille</span>
+</footer>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Œuvre agrandie">
+  <button class="lb-close" id="lbClose" aria-label="Fermer">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 5l14 14M19 5L5 19"/></svg>
+  </button>
+  <button class="lb-btn lb-prev" id="lbPrev" aria-label="Précédente">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg>
+  </button>
+  <div class="lb-stage"><img id="lbImg" alt=""></div>
+  <button class="lb-btn lb-next" id="lbNext" aria-label="Suivante">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+  </button>
+  <div class="lb-caption" id="lbCap"></div>
+</div>
+
+<script>
+const ORDER=["peintures","dessins","sculptures","photographies","autres"];
+const NOTES={
+  peintures:"Huiles et acryliques · 1960–1999",
+  dessins:"Crayon, feutre et études · 1944–1994",
+  sculptures:"Pierre, plâtre et terre",
+  photographies:"Tirages argentiques et couleur",
+  autres:"Pièces diverses"
+};
+let DATA={},current=null,cur=[],curIdx=0;
+document.getElementById("year").textContent=new Date().getFullYear();
+
+fetch("manifest.json").then(r=>r.json()).then(m=>{
+  DATA=m;
+  const tabs=document.getElementById("tabs");
+  ORDER.forEach((slug,i)=>{
+    if(!DATA[slug]||!DATA[slug].items.length)return;
+    const b=document.createElement("button");
+    b.className="tab"; b.dataset.slug=slug;
+    b.innerHTML=`${DATA[slug].label}<span class="count">${DATA[slug].items.length}</span>`;
+    b.onclick=()=>select(slug);
+    tabs.appendChild(b);
+  });
+  select(ORDER.find(s=>DATA[s]&&DATA[s].items.length));
+});
+
+const io=new IntersectionObserver(es=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}});
+},{rootMargin:"140px"});
+
+function select(slug){
+  if(!slug||current===slug)return;
+  current=slug;cur=DATA[slug].items;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.slug===slug));
+  document.getElementById("secTitle").textContent=DATA[slug].label;
+  document.getElementById("secNote").textContent=NOTES[slug]||"";
+  const grid=document.getElementById("grid");grid.innerHTML="";
+  cur.forEach((it,idx)=>{
+    const cell=document.createElement("figure");cell.className="cell";
+    cell.style.aspectRatio=`${it.w} / ${it.h}`;
+    const img=document.createElement("img");
+    img.loading="lazy";img.decoding="async";
+    img.src=`images/thumbs/${it.id}.jpg`;
+    img.alt=it.year?`Œuvre de ${it.year}`:"Œuvre";
+    cell.appendChild(img);
+    if(it.year){const meta=document.createElement("figcaption");meta.className="meta";meta.textContent=it.year;cell.appendChild(meta);}
+    cell.onclick=()=>openLb(idx);
+    grid.appendChild(cell);io.observe(cell);
+  });
+}
+
+const lb=document.getElementById("lb"),lbImg=document.getElementById("lbImg"),lbCap=document.getElementById("lbCap");
+function openLb(i){curIdx=i;showLb();lb.classList.add("open");document.body.style.overflow="hidden"}
+function closeLb(){lb.classList.remove("open");document.body.style.overflow=""}
+function showLb(){
+  const it=cur[curIdx];lbImg.classList.remove("ready");
+  const pre=new Image();pre.onload=()=>{lbImg.src=pre.src;lbImg.classList.add("ready")};
+  pre.src=`images/full/${it.id}.jpg`;
+  lbImg.alt=it.year?`Œuvre de ${it.year}`:"Œuvre";
+  const label=DATA[current].label.replace(/s$/,"");
+  lbCap.innerHTML=`${it.year?it.year:label}<span class="idx">${curIdx+1} / ${cur.length}</span>`;
+}
+function nav(d){curIdx=(curIdx+d+cur.length)%cur.length;showLb()}
+document.getElementById("lbNext").onclick=()=>nav(1);
+document.getElementById("lbPrev").onclick=()=>nav(-1);
+document.getElementById("lbClose").onclick=closeLb;
+lb.onclick=e=>{if(e.target===lb||e.target.classList.contains("lb-stage"))closeLb()};
+document.addEventListener("keydown",e=>{
+  if(!lb.classList.contains("open"))return;
+  if(e.key==="Escape")closeLb();else if(e.key==="ArrowRight")nav(1);else if(e.key==="ArrowLeft")nav(-1);
+});
+let tx=0;
+lb.addEventListener("touchstart",e=>tx=e.touches[0].clientX,{passive:true});
+lb.addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50)nav(dx<0?1:-1)},{passive:true});
+
+/* ---- parallaxe : les formes derivent au scroll ---- */
+(function(){
+  const svg=document.getElementById("heroSvg");
+  if(!svg)return;
+  const reduce=window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+  if(reduce)return;
+  let ticking=false;
+  function update(){
+    const y=window.scrollY;
+    // les formes montent plus vite que la page + leger zoom -> effet de profondeur
+    svg.style.transform=`translate3d(${y*0.04}px, ${y*0.32}px, 0) scale(${1+y*0.00018})`;
+    svg.style.opacity=Math.max(0,1-y/900);
+    ticking=false;
+  }
+  window.addEventListener("scroll",()=>{
+    if(!ticking){requestAnimationFrame(update);ticking=true;}
+  },{passive:true});
+  update();
+})();
+</script>
+</body>
+</html>
