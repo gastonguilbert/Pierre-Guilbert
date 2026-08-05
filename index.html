@@ -167,6 +167,9 @@ main{padding:clamp(22px,4vw,46px) var(--edge) 12vh;background:var(--ink)}
   font-variant-numeric:tabular-nums;
 }
 .cell:hover .meta{transform:none}
+.series-badge{position:absolute;top:0;right:0;background:var(--cyan);color:var(--ink);
+  font-family:"Archivo Narrow",sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  font-size:.64rem;padding:3px 8px;z-index:2}
 
 /* ---------- LIGHTBOX ---------- */
 .lb{position:fixed;inset:0;z-index:100;background:rgba(20,16,24,.97);
@@ -181,6 +184,24 @@ main{padding:clamp(22px,4vw,46px) var(--edge) 12vh;background:var(--ink)}
   font-family:"Archivo Narrow",sans-serif;font-weight:600;letter-spacing:.04em;
   color:var(--paper);font-variant-numeric:tabular-nums}
 .lb-caption .idx{color:var(--muted);margin-left:.7em}
+/* bande des esquisses / variantes attachees a une oeuvre */
+.lb-series{position:fixed;bottom:0;left:0;right:0;z-index:105;
+  display:flex;gap:12px;justify-content:center;align-items:flex-end;
+  padding:12px clamp(14px,3vw,30px) calc(clamp(16px,4vh,38px) + 22px);
+  background:linear-gradient(to top,rgba(20,16,24,.9),transparent);
+  flex-wrap:wrap;pointer-events:none}
+.lb-series.show{pointer-events:auto}
+.lb-series:empty{display:none}
+.lb-series figure{margin:0;cursor:pointer;text-align:center;transition:transform .2s}
+.lb-series figure:hover{transform:translateY(-4px)}
+.lb-series img{height:clamp(58px,9vh,96px);width:auto;display:block;
+  border:2px solid rgba(244,239,230,.25);border-radius:2px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.lb-series figure.active img{border-color:var(--yellow)}
+.lb-series figcaption{font-family:"Archivo Narrow",sans-serif;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;font-size:.62rem;color:var(--muted);margin-top:5px}
+.lb-series figure.active figcaption{color:var(--yellow)}
+/* quand des annexes sont presentes, on remonte la legende au-dessus de la bande */
+.lb.has-series .lb-caption{bottom:calc(clamp(58px,9vh,96px) + 46px)}
 .lb-btn{position:fixed;top:0;bottom:0;width:clamp(60px,12vw,150px);border:none;background:none;
   cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center;
   transition:color .2s;z-index:101}
@@ -189,10 +210,12 @@ main{padding:clamp(22px,4vw,46px) var(--edge) 12vh;background:var(--ink)}
 .lb-prev{left:0;justify-content:flex-start;padding-left:clamp(14px,3vw,38px)}
 .lb-next{right:0;justify-content:flex-end;padding-right:clamp(14px,3vw,38px)}
 .lb-close{position:fixed;top:clamp(12px,3vh,26px);right:clamp(14px,3vw,30px);
-  width:46px;height:46px;border:none;background:var(--red);cursor:pointer;color:#fff;z-index:101;
-  display:flex;align-items:center;justify-content:center;transition:background .2s}
-.lb-close:hover{background:var(--vermillon)}
+  width:52px;height:52px;border:none;background:var(--red);cursor:pointer;color:#fff;z-index:110;
+  display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s;border-radius:50%}
+.lb-close:hover{background:var(--vermillon);transform:rotate(90deg)}
 .lb-close svg{width:22px;height:22px}
+/* la zone du bouton suivant s'arrete avant la croix pour eviter le chevauchement */
+.lb-next{top:90px}
 @media(max-width:640px){.lb-btn{width:52px}.lb-stage,.lb-stage img{max-height:72vh}}
 
 /* ---------- FOOTER ---------- */
@@ -343,6 +366,7 @@ footer .fs{font-family:"Archivo Narrow",sans-serif;color:var(--muted);font-size:
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
   </button>
   <div class="lb-caption" id="lbCap"></div>
+  <div class="lb-series" id="lbSeries"></div>
 </div>
 
 <script>
@@ -391,21 +415,60 @@ function select(slug){
     img.alt=it.year?`Œuvre de ${it.year}`:"Œuvre";
     cell.appendChild(img);
     if(it.year){const meta=document.createElement("figcaption");meta.className="meta";meta.textContent=it.year;cell.appendChild(meta);}
+    if(it.series){
+      const n=(it.series.sketches?it.series.sketches.length:0)+(it.series.variants?it.series.variants.length:0);
+      if(n>0){const badge=document.createElement("span");badge.className="series-badge";
+        badge.textContent=n+(n>1?" études":" étude");cell.appendChild(badge);}
+    }
     cell.onclick=()=>openLb(idx);
     grid.appendChild(cell);io.observe(cell);
   });
 }
 
 const lb=document.getElementById("lb"),lbImg=document.getElementById("lbImg"),lbCap=document.getElementById("lbCap");
+const lbSeries=document.getElementById("lbSeries");
+let seriesViews=[];      // les images visibles dans la serie courante
+let seriesActive=0;
 function openLb(i){curIdx=i;showLb();lb.classList.add("open");document.body.style.overflow="hidden"}
 function closeLb(){lb.classList.remove("open");document.body.style.overflow=""}
-function showLb(){
-  const it=cur[curIdx];lbImg.classList.remove("ready");
+
+function buildSeries(it){
+  // construit la liste : oeuvre principale + esquisses + variantes
+  seriesViews=[{id:it.id, role:"Œuvre", year:it.year}];
+  if(it.series){
+    (it.series.variants||[]).forEach(s=>seriesViews.push({id:s.id,role:"Variante",year:s.year}));
+    (it.series.sketches||[]).forEach(s=>seriesViews.push({id:s.id,role:"Esquisse",year:s.year}));
+  }
+}
+function renderSeriesBar(){
+  lbSeries.innerHTML="";
+  if(seriesViews.length<=1){lb.classList.remove("has-series");lbSeries.classList.remove("show");return;}
+  lb.classList.add("has-series");lbSeries.classList.add("show");
+  seriesViews.forEach((v,i)=>{
+    const fig=document.createElement("figure");
+    if(i===seriesActive)fig.className="active";
+    fig.innerHTML=`<img src="images/thumbs/${v.id}.jpg" alt="${v.role}"><figcaption>${v.role}</figcaption>`;
+    fig.onclick=(e)=>{e.stopPropagation();seriesActive=i;showSeriesImage();};
+    lbSeries.appendChild(fig);
+  });
+}
+function showSeriesImage(){
+  const v=seriesViews[seriesActive];
+  lbImg.classList.remove("ready");
   const pre=new Image();pre.onload=()=>{lbImg.src=pre.src;lbImg.classList.add("ready")};
-  pre.src=`images/full/${it.id}.jpg`;
-  lbImg.alt=it.year?`Œuvre de ${it.year}`:"Œuvre";
+  pre.src=`images/full/${v.id}.jpg`;
+  lbImg.alt=v.year?`${v.role} — ${v.year}`:v.role;
   const label=DATA[current].label.replace(/s$/,"");
-  lbCap.innerHTML=`${it.year?it.year:label}<span class="idx">${curIdx+1} / ${cur.length}</span>`;
+  const roleTxt=seriesViews.length>1?`${v.role}${v.year?" · "+v.year:""}`:(v.year||label);
+  lbCap.innerHTML=`${roleTxt}<span class="idx">${curIdx+1} / ${cur.length}</span>`;
+  lbSeries.querySelectorAll("figure").forEach((f,i)=>f.classList.toggle("active",i===seriesActive));
+}
+function showLb(){
+  const it=cur[curIdx];
+  buildSeries(it);
+  seriesActive=0;
+  renderSeriesBar();
+  showSeriesImage();
 }
 function nav(d){curIdx=(curIdx+d+cur.length)%cur.length;showLb()}
 document.getElementById("lbNext").onclick=()=>nav(1);
