@@ -123,8 +123,8 @@ nav.tabs{position:sticky;top:52px;z-index:40;background:var(--panel);border-bott
 .sortbar button.active{background:var(--paper);color:var(--ink);border-color:var(--paper)}
 main.e-main{padding:clamp(20px,3vw,40px) var(--edge) 12vh}
 .section-note{color:var(--muted);font-size:.9rem;margin-bottom:clamp(18px,3vw,30px);min-height:1.2em;font-family:"Archivo Narrow",sans-serif;letter-spacing:.03em}
-.grid{columns:5 250px;column-gap:var(--gap)}
-@media(max-width:640px){.grid{columns:2 150px}}
+.grid{display:block}
+@media(max-width:640px){.year-works{grid-template-columns:repeat(2,1fr)}}
 .cell{break-inside:avoid;margin-bottom:var(--gap);cursor:zoom-in;position:relative;background:var(--panel);overflow:hidden;
   opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease}
 .cell.in{opacity:1;transform:none}
@@ -172,6 +172,75 @@ main.e-main{padding:clamp(20px,3vw,40px) var(--edge) 12vh}
 
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}.cell{opacity:1;transform:none}.g-work{opacity:1;transform:none}}
 :focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+
+/* ============ HERO ANIMÉ (ouverture galerie) ============ */
+/* ---------- HERO : composition geometrique ---------- */
+.hero{
+  position:relative;
+  min-height:88vh;
+  padding:var(--edge);
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  overflow:hidden;
+  border-bottom:6px solid var(--yellow);
+}
+/* formes geometriques animees en SVG (morph de chemins) */
+.hero-bg{position:absolute;inset:0;z-index:0;width:100%;height:100%;transform-origin:70% 30%;will-change:transform,opacity}
+.hero-bg path{will-change:d,transform}
+.hero-grain{position:absolute;inset:0;z-index:1;
+  background:radial-gradient(ellipse at 30% 90%,transparent 30%,rgba(20,16,24,.7) 100%);
+  mix-blend-mode:multiply}
+.hero-inner{position:relative;z-index:2;max-width:15ch}
+.hero-inner::before{content:"";position:absolute;z-index:-1;
+  left:-6vw;right:-8vw;top:-4vh;bottom:-6vh;
+  background:radial-gradient(ellipse at 30% 55%,rgba(20,16,24,.82) 40%,transparent 78%)}
+.eyebrow{
+  font-family:"Archivo Narrow",sans-serif;
+  font-weight:700;
+  letter-spacing:.32em;
+  text-transform:uppercase;
+  font-size:clamp(.68rem,1.1vw,.82rem);
+  color:var(--yellow);
+  margin-bottom:1.2rem;
+}
+.title{
+  font-family:"Archivo Black",sans-serif;
+  font-size:clamp(3.4rem,13vw,11rem);
+  line-height:.82;
+  letter-spacing:-.02em;
+  text-transform:uppercase;
+  color:var(--paper);
+}
+.title .l2{color:var(--yellow)}
+.lede{
+  margin-top:1.6rem;
+  max-width:34ch;
+  font-size:clamp(1rem,1.5vw,1.15rem);
+  line-height:1.5;
+  color:rgba(244,239,230,.82);
+}
+
+/* le hero ouvre la galerie, puis les oeuvres defilent ensuite */
+.hero{scroll-snap-align:start}
+.hero .scroll-cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:3;
+  color:var(--yellow);font-family:"Archivo Narrow",sans-serif;text-transform:uppercase;letter-spacing:.14em;
+  font-size:.72rem;display:flex;flex-direction:column;align-items:center;gap:8px;animation:cueBounce 2s ease-in-out infinite}
+.hero .scroll-cue svg{width:22px;height:22px}
+@keyframes cueBounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+
+/* ============ CHRONOLOGIE PAR ANNÉE (vue d'ensemble) ============ */
+.year-row{margin-bottom:clamp(30px,5vw,64px)}
+.year-line{display:flex;align-items:center;gap:20px;margin-bottom:clamp(16px,2.5vw,28px)}
+.year-line .yr{font-family:"Archivo Black",sans-serif;font-size:clamp(1.8rem,4.5vw,3.4rem);
+  color:var(--yellow);line-height:1;white-space:nowrap;letter-spacing:-.01em}
+.year-line .rule{flex:1;height:2px;background:linear-gradient(to right,var(--yellow),var(--line))}
+.year-line .cnt{font-family:"Archivo Narrow",sans-serif;color:var(--muted);font-size:.8rem;
+  text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
+.year-works{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:var(--gap);align-items:start}
+@media(max-width:640px){.year-works{grid-template-columns:repeat(2,1fr)}}
+.year-works .cell{opacity:1;transform:none}
+
 </style>
 </head>
 <body>
@@ -186,7 +255,118 @@ main.e-main{padding:clamp(20px,3vw,40px) var(--edge) 12vh}
 
 <!-- ============ MODE GALERIE ============ -->
 <section id="galerie">
-  <div class="g-scroll" id="gscroll"></div>
+  <div class="g-scroll" id="gscroll">
+<section class="hero">
+  <svg id="heroSvg" class="hero-bg" viewBox="0 0 1000 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs>
+      <linearGradient id="gRed" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#e02a1a"/><stop offset=".5" stop-color="#f04e1e"/><stop offset="1" stop-color="#d81f5e"/>
+      </linearGradient>
+      <linearGradient id="gYellow" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#f2e21c"/><stop offset="1" stop-color="#f0b224"/>
+      </linearGradient>
+      <linearGradient id="gCyan" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#1eb6de"/><stop offset="1" stop-color="#1f5fd0"/>
+      </linearGradient>
+      <linearGradient id="gGreen" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#2fb84e"/><stop offset="1" stop-color="#aad820"/>
+      </linearGradient>
+      <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#f0b224"/><stop offset="1" stop-color="#2fb84e"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Grande forme rouge : blob rond -> goutte -> cœur -> ovale -> blob, morph continu -->
+    <path fill="url(#gRed)" d="M760,120 C860,120 940,200 940,300 C940,400 860,480 760,480 C660,480 580,400 580,300 C580,200 660,120 760,120 Z">
+      <animate attributeName="d" dur="24s" repeatCount="indefinite" calcMode="spline"
+        keyTimes="0;0.2;0.4;0.6;0.8;1"
+        keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+        values="
+          M760,120 C860,120 940,200 940,300 C940,400 860,480 760,480 C660,480 580,400 580,300 C580,200 660,120 760,120 Z;
+          M760,110 C870,130 920,210 910,300 C900,400 830,450 760,495 C690,450 620,400 610,300 C600,210 650,130 760,110 Z;
+          M760,130 C840,140 910,190 905,290 C900,390 810,440 760,500 C710,440 620,390 615,290 C610,190 680,140 760,130 Z;
+          M760,120 C880,120 950,230 940,310 C930,400 850,450 760,470 C670,450 590,400 580,310 C570,230 640,120 760,120 Z;
+          M760,115 C860,125 925,205 930,300 C935,395 855,470 760,485 C665,470 585,395 590,300 C595,205 660,125 760,115 Z;
+          M760,120 C860,120 940,200 940,300 C940,400 860,480 760,480 C660,480 580,400 580,300 C580,200 660,120 760,120 Z"/>
+    </path>
+
+    <!-- Triangle jaune -> cercle -> carre arrondi : tous en 4 courbes, morph fluide -->
+    <path fill="url(#gYellow)" transform="translate(560,90)" d="M120,4 C120,4 240,220 240,220 C240,220 120,220 120,220 C120,220 0,220 0,220 C0,220 120,4 120,4 Z">
+      <animate attributeName="d" dur="26s" repeatCount="indefinite" calcMode="spline"
+        keyTimes="0;0.25;0.5;0.75;1"
+        keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+        values="
+          M120,4 C120,4 240,220 240,220 C240,220 120,220 120,220 C120,220 0,220 0,220 C0,220 120,4 120,4 Z;
+          M120,0 C186,0 240,54 240,120 C240,186 186,240 120,240 C54,240 0,186 0,120 C0,54 54,0 120,0 Z;
+          M30,30 C90,10 150,10 210,30 C230,90 230,150 210,210 C150,230 90,230 30,210 C10,150 10,90 30,30 Z;
+          M120,0 C186,0 240,54 240,120 C240,186 186,240 120,240 C54,240 0,186 0,120 C0,54 54,0 120,0 Z;
+          M120,4 C120,4 240,220 240,220 C240,220 120,220 120,220 C120,220 0,220 0,220 C0,220 120,4 120,4 Z"/>
+    </path>
+
+    <!-- Forme cyan (bas) : arche -> cercle -> vague, 4 courbes constantes -->
+    <path fill="url(#gCyan)" d="M600,760 C600,660 600,560 600,560 C700,540 820,540 920,560 C920,560 920,660 920,760 C820,760 700,760 600,760 Z">
+      <animate attributeName="d" dur="22s" repeatCount="indefinite" calcMode="spline"
+        keyTimes="0;0.33;0.66;1"
+        keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+        values="
+          M600,760 C600,660 600,560 600,560 C700,540 820,540 920,560 C920,560 920,660 920,760 C820,760 700,760 600,760 Z;
+          M600,760 C600,650 665,540 760,540 C855,540 920,650 920,760 C920,760 860,720 760,720 C660,720 600,760 600,760 Z;
+          M600,760 C620,690 600,600 640,560 C720,530 800,590 920,560 C920,640 900,720 860,760 C760,730 680,790 600,760 Z;
+          M600,760 C600,660 600,560 600,560 C700,540 820,540 920,560 C920,560 920,660 920,760 C820,760 700,760 600,760 Z"/>
+    </path>
+
+    <!-- Cercle magenta -> triangle -> cercle : 3 courbes constantes, morph doux -->
+    <path fill="#d81f5e" d="M492,368 C532,368 564,400 564,440 C564,480 532,512 492,512 C452,512 420,480 420,440 C420,400 452,368 492,368 Z">
+      <animate attributeName="d" dur="19s" repeatCount="indefinite" calcMode="spline"
+        keyTimes="0;0.33;0.66;1"
+        keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+        values="
+          M492,368 C532,368 564,400 564,440 C564,480 532,512 492,512 C452,512 420,480 420,440 C420,400 452,368 492,368 Z;
+          M492,362 C528,428 546,468 570,510 C540,510 510,510 492,510 C474,510 444,510 414,510 C438,468 456,428 492,362 Z;
+          M492,372 C520,400 548,432 552,460 C540,485 516,505 492,505 C468,505 444,485 432,460 C436,432 464,400 492,372 Z;
+          M492,368 C532,368 564,400 564,440 C564,480 532,512 492,512 C452,512 420,480 420,440 C420,400 452,368 492,368 Z"/>
+      <animateTransform attributeName="transform" type="translate" dur="28s" repeatCount="indefinite"
+        calcMode="spline" keyTimes="0;0.5;1" keySplines="0.4 0 0.6 1;0.4 0 0.6 1"
+        values="0 0; 44 -34; 0 0"/>
+    </path>
+
+    <!-- Bande verte oblique qui ondule doucement -->
+    <path fill="url(#gGreen)" d="M880,80 C920,100 960,120 960,120 C920,220 860,320 820,420 C780,400 760,390 740,380 C780,280 840,180 880,80 Z">
+      <animate attributeName="d" dur="23s" repeatCount="indefinite" calcMode="spline"
+        keyTimes="0;0.33;0.66;1"
+        keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+        values="
+          M880,80 C920,100 960,120 960,120 C920,220 860,320 820,420 C780,400 760,390 740,380 C780,280 840,180 880,80 Z;
+          M900,60 C940,90 980,140 980,140 C900,240 820,340 780,400 C750,370 730,360 720,340 C780,240 860,140 900,60 Z;
+          M870,90 C915,105 955,110 955,110 C930,215 850,325 830,430 C785,405 765,400 745,390 C775,285 835,185 870,90 Z;
+          M880,80 C920,100 960,120 960,120 C920,220 860,320 820,420 C780,400 760,390 740,380 C780,280 840,180 880,80 Z"/>
+    </path>
+
+    <!-- Forme doree qui pulse : quart de cercle -> feuille, 2 courbes -->
+    <path fill="url(#gGold)" d="M480,300 C480,240 528,192 588,192 C588,228 588,264 588,300 C552,300 516,300 480,300 Z">
+      <animate attributeName="d" dur="20s" repeatCount="indefinite" calcMode="spline"
+        keyTimes="0;0.33;0.66;1"
+        keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+        values="
+          M480,300 C480,240 528,192 588,192 C588,228 588,264 588,300 C552,300 516,300 480,300 Z;
+          M480,300 C490,228 528,180 588,192 C566,232 566,262 588,300 C552,306 516,306 480,300 Z;
+          M480,300 C475,235 525,196 588,192 C580,230 580,264 588,300 C552,298 516,302 480,300 Z;
+          M480,300 C480,240 528,192 588,192 C588,228 588,264 588,300 C552,300 516,300 480,300 Z"/>
+      <animateTransform attributeName="transform" type="rotate" dur="46s" repeatCount="indefinite"
+        from="0 534 246" to="360 534 246"/>
+    </path>
+  </svg>
+  <div class="hero-grain" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <p class="eyebrow">Peintures · Dessins · Sculptures · Photographies</p>
+    <h1 class="title"><span class="l1">Pierre</span><br><span class="l2">Guilbert</span></h1>
+  </div>
+  <div class="scroll-cue">Découvrir les œuvres
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+  </div>
+</section>
+
+</div>
   <div class="g-nav">
     <button id="gPrev" aria-label="Œuvre précédente">‹</button>
     <span class="g-progress" id="gProgress"></span>
@@ -236,7 +416,9 @@ fetch("manifest.json").then(r=>r.json()).then(m=>{
 
 /* ---------- MODE GALERIE ---------- */
 function buildGalerie(){
-  const sc=document.getElementById("gscroll");sc.innerHTML="";
+  const sc=document.getElementById("gscroll");
+  // le hero (1er enfant) reste ; on retire seulement d'anciennes oeuvres si rebuild
+  sc.querySelectorAll(".g-stage,.g-end").forEach(n=>n.remove());
   featured.forEach((id,i)=>{
     const it=info[id];if(!it)return;
     const stage=document.createElement("div");stage.className="g-stage";stage.dataset.i=i;
@@ -350,23 +532,46 @@ function select(slug){
 function renderGrid(){
   // tri
   cur.sort((a,b)=>{
-    const ya=a.year||9999,yb=b.year||9999;
+    const ha=a.year?0:1,hb=b.year?0:1;      // sans-date toujours en fin
+    if(ha!==hb)return ha-hb;
+    const ya=a.year||0,yb=b.year||0;
     if(sortMode==="year")return ya-yb||a.src_name.localeCompare(b.src_name);
     if(sortMode==="year_desc")return yb-ya||a.src_name.localeCompare(b.src_name);
     return 0;
   });
   const grid=document.getElementById("grid");grid.innerHTML="";
+
+  // regrouper par annee en conservant l'index global dans cur (pour la lightbox)
+  const rows=[];let currentYear="__init__",row=null;
   cur.forEach((it,idx)=>{
-    const cell=document.createElement("figure");cell.className="cell";
-    cell.style.aspectRatio=`${it.w} / ${it.h}`;
-    const img=document.createElement("img");img.loading="lazy";img.decoding="async";
-    img.src=`images/thumbs/${it.id}.jpg`;img.alt=it.year?`Œuvre de ${it.year}`:"Œuvre";
-    cell.appendChild(img);
-    if(it.year){const meta=document.createElement("figcaption");meta.className="meta";meta.textContent=it.year;cell.appendChild(meta);}
-    if(it.series){const n=(it.series.sketches?it.series.sketches.length:0)+(it.series.variants?it.series.variants.length:0);
-      if(n>0){const badge=document.createElement("span");badge.className="series-badge";badge.textContent=n+(n>1?" études":" étude");cell.appendChild(badge);}}
-    cell.onclick=()=>openLb(idx);
-    grid.appendChild(cell);io2.observe(cell);
+    const y=it.year||0;
+    if(y!==currentYear){
+      currentYear=y;
+      row={year:y,items:[]};rows.push(row);
+    }
+    row.items.push({it,idx});
+  });
+
+  rows.forEach(r=>{
+    const block=document.createElement("div");block.className="year-row";
+    const label=r.year>0?r.year:"Sans date";
+    const head=document.createElement("div");head.className="year-line";
+    head.innerHTML=`<span class="yr">${label}</span><span class="rule"></span><span class="cnt">${r.items.length} œuvre${r.items.length>1?"s":""}</span>`;
+    block.appendChild(head);
+    const works=document.createElement("div");works.className="year-works";
+    r.items.forEach(({it,idx})=>{
+      const cell=document.createElement("figure");cell.className="cell in";
+      const img=document.createElement("img");img.loading="lazy";img.decoding="async";
+      img.src=`images/thumbs/${it.id}.jpg`;img.alt=it.year?`Œuvre de ${it.year}`:"Œuvre";
+      cell.appendChild(img);
+      if(it.year){const meta=document.createElement("figcaption");meta.className="meta";meta.textContent=it.year;cell.appendChild(meta);}
+      if(it.series){const n=(it.series.sketches?it.series.sketches.length:0)+(it.series.variants?it.series.variants.length:0);
+        if(n>0){const badge=document.createElement("span");badge.className="series-badge";badge.textContent=n+(n>1?" études":" étude");cell.appendChild(badge);}}
+      cell.onclick=()=>openLb(idx);
+      works.appendChild(cell);
+    });
+    block.appendChild(works);
+    grid.appendChild(block);
   });
 }
 
@@ -423,6 +628,22 @@ document.addEventListener("keydown",e=>{
   if(!lb.classList.contains("open"))return;
   if(e.key==="Escape")closeLb();else if(e.key==="ArrowRight")navLb(1);else if(e.key==="ArrowLeft")navLb(-1);
 });
+/* ---- parallaxe : les formes du hero derivent au scroll de la galerie ---- */
+(function(){
+  const svg=document.getElementById("heroSvg");
+  const sc=document.getElementById("gscroll");
+  if(!svg||!sc)return;
+  if(window.matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+  let ticking=false;
+  function update(){
+    const y=sc.scrollTop;
+    svg.style.transform=`translate3d(${y*0.04}px, ${y*0.28}px, 0) scale(${1+y*0.00016})`;
+    svg.style.opacity=Math.max(0,1-y/700);
+    ticking=false;
+  }
+  sc.addEventListener("scroll",()=>{if(!ticking){requestAnimationFrame(update);ticking=true;}},{passive:true});
+  update();
+})();
 </script>
 </body>
 </html>
