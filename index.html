@@ -70,9 +70,11 @@ body{background:var(--ink);color:var(--paper);font-family:"Archivo",system-ui,sa
   font-family:"Archivo Narrow",sans-serif;text-transform:uppercase;letter-spacing:.16em;
   font-size:.72rem;color:var(--muted)}
 @media(max-width:820px){
+  .g-slide{will-change:transform,opacity}
   .g-slide img{max-width:82vw;max-height:56vh}
-  .g-slide.prev{transform:translate(calc(-50% - 44vw),-50%) scale(.5)}
-  .g-slide.next{transform:translate(calc(-50% + 44vw),-50%) scale(.5)}
+  /* flou plus leger sur mobile (le flou GPU est couteux sur telephone) */
+  .g-slide.prev{transform:translate(calc(-50% - 44vw),-50%) scale(.5);filter:blur(2px);opacity:.3}
+  .g-slide.next{transform:translate(calc(-50% + 44vw),-50%) scale(.5);filter:blur(2px);opacity:.3}
 }
 
 /* ============ MODE VUE D'ENSEMBLE (sous-pages grille) ============ */
@@ -210,6 +212,12 @@ main.e-main{padding:clamp(20px,3vw,40px) var(--edge) 12vh}
   font-size:.72rem;display:flex;flex-direction:column;align-items:center;gap:8px;animation:cueBounce 2s ease-in-out infinite}
 .hero .scroll-cue svg{width:22px;height:22px}
 @keyframes cueBounce{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(6px)}}
+/* mobile : le titre grimpe vite en hauteur, on l'empeche de chevaucher la mention du bas */
+@media(max-width:700px){
+  .hero{justify-content:flex-start;padding-top:22vh;padding-bottom:84px}
+  .title{font-size:clamp(3rem,15vw,5.5rem)}
+  .hero .scroll-cue{bottom:34px;font-size:.66rem;letter-spacing:.12em}
+}
 
 /* ============ CHRONOLOGIE PAR ANNÉE (vue d'ensemble) ============ */
 .year-row{margin-bottom:clamp(30px,5vw,64px)}
@@ -406,8 +414,11 @@ const G_DURATION=6000;  // 6 secondes par oeuvre
 
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
+/* On NE cree que 5 slides fixes qu'on recycle (sinon 565 slides saturent la memoire mobile).
+   Positions : -2 (off-left), -1 (prev), 0 (center), +1 (next), +2 (off-right). */
+const SLOTS=[-2,-1,0,1,2];
+let gSlides=[];
 function buildGalerie(){
-  // toutes les oeuvres, tous supports, en aleatoire
   allWorks=[];
   for(const slug in DATA){
     if(slug[0]==="_"||!DATA[slug].items)continue;
@@ -416,40 +427,38 @@ function buildGalerie(){
   shuffle(allWorks);
   gIdx=0;
   const track=document.getElementById("gtrack");track.innerHTML="";
-  // on cree 5 slots reutilisables (prev, center, next, off-left, off-right)
-  // mais plus simple : on cree un slide par oeuvre, positionne dynamiquement (leger car <img loading lazy>)
-  allWorks.forEach((it,i)=>{
-    const s=document.createElement("div");s.className="g-slide hidden-slide";s.dataset.i=i;
-    s.innerHTML=`<img alt="Œuvre${it.year?' de '+it.year:''}" onclick="openLbGrid('${it.id}')">`;
+  gSlides=SLOTS.map(off=>{
+    const s=document.createElement("div");s.className="g-slide";
+    s.innerHTML=`<img alt="">`;
+    s.querySelector("img").onclick=()=>{const it=allWorks[gIdx];if(it)openLbGrid(it.id);};
     track.appendChild(s);
+    return s;
   });
   positionSlides();
 }
 
-function positionSlides(){
-  const slides=document.querySelectorAll("#gtrack .g-slide");
-  const n=allWorks.length;
-  slides.forEach((s,i)=>{
-    const img=s.querySelector("img");
-    let cls="g-slide ";
-    const diff=(i-gIdx+n)%n;
-    if(diff===0){cls+="center";ensureSrc(img,allWorks[i]);}
-    else if(diff===1){cls+="next";ensureSrc(img,allWorks[i]);}
-    else if(diff===n-1){cls+="prev";ensureSrc(img,allWorks[i]);}
-    else if(diff===2){cls+="off-right";}
-    else if(diff===n-2){cls+="off-left";}
-    else cls+="hidden-slide";
-    s.className=cls;
-  });
-  // cartel
-  const it=allWorks[gIdx];
-  const cartel=document.getElementById("gcartel");
-  const label=DATA[it.slug]?DATA[it.slug].label.replace(/s$/,""):"";
-  cartel.innerHTML=`<div class="yr">${it.year||label}</div><div class="tech">Pierre Guilbert${it.year?" · "+label:""}</div>`;
+function slideClassFor(off){
+  if(off===0)return "g-slide center";
+  if(off===-1)return "g-slide prev";
+  if(off===1)return "g-slide next";
+  if(off===-2)return "g-slide off-left";
+  return "g-slide off-right";
 }
-function ensureSrc(img,it){
-  const want=`images/full/${it.id}.jpg`;
-  if(img.getAttribute("src")!==want)img.src=want;
+function positionSlides(){
+  const n=allWorks.length;if(!n)return;
+  gSlides.forEach((s,k)=>{
+    const off=SLOTS[k];
+    const idx=((gIdx+off)%n+n)%n;
+    const it=allWorks[idx];
+    const img=s.querySelector("img");
+    // centre : pleine resolution ; voisines : vignette legere (allege la memoire)
+    const want=(off===0)?`images/full/${it.id}.jpg`:`images/thumbs/${it.id}.jpg`;
+    if(img.getAttribute("src")!==want){img.src=want;img.alt=it.year?`Œuvre de ${it.year}`:"Œuvre";}
+    s.className=slideClassFor(off);
+  });
+  const it=allWorks[gIdx];
+  const label=DATA[it.slug]?DATA[it.slug].label.replace(/s$/,""):"";
+  document.getElementById("gcartel").innerHTML=`<div class="yr">${it.year||label}</div><div class="tech">Pierre Guilbert${it.year?" · "+label:""}</div>`;
 }
 
 function gAdvance(){gIdx=(gIdx+1)%allWorks.length;positionSlides();}
